@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+grokking_history.pkl
+*.png
+outputs/
