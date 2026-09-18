@@ -5,3 +5,4 @@ grokking_history.pkl
 *.png
 outputs/
 run_grokking.slurm
+.matplotlib
