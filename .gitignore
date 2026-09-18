@@ -4,3 +4,4 @@ __pycache__/
 grokking_history.pkl
 *.png
 outputs/
+run_grokking.slurm
