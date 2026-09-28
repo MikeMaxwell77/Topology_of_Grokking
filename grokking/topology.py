@@ -7,6 +7,7 @@ from collections.abc import Callable
 import numpy as np
 
 from .training import extract_all_hidden_states_with_labels
+from .entropy import persistent_entropy
 
 
 def _ripser(points: np.ndarray, *, maxdim: int):
@@ -137,18 +138,17 @@ def compute_wasserstein_distance_to_ideal(
     distance = distance_fn or _wasserstein
     result = {}
     for dimension in range(maxdim + 1):
-        value = 0.0
+        value = float("nan")
         if dimension < len(model_diagrams) and dimension < len(ideal_diagrams):
             learned = remove_infinite(model_diagrams[dimension])
             ideal = remove_infinite(ideal_diagrams[dimension])
-            if len(learned) and len(ideal):
-                value = float(distance(ideal, learned))
+            value = float(distance(ideal, learned)) if len(learned) or len(ideal) else 0.0
         result[f"wasserstein_to_ideal_{dimension}"] = value
     return result
 
 
 def _empty_metrics(maxdim: int, include_labels: bool) -> dict:
-    metrics = {"intrinsic_dim": 0.0, "diagrams": []}
+    metrics = {"intrinsic_dim": 0.0, "diagrams": [], "topology_valid": False}
     for dimension in range(maxdim + 1):
         for name in ("total", "avg", "max", "var"):
             metrics[f"{name}_persistence_{dimension}"] = 0.0
@@ -156,6 +156,8 @@ def _empty_metrics(maxdim: int, include_labels: bool) -> dict:
         metrics[f"long_lived_{dimension}"] = 0
         metrics[f"wasserstein_shift_{dimension}"] = 0.0
         metrics[f"wasserstein_to_ideal_{dimension}"] = 0.0
+        metrics[f"persistent_entropy_{dimension}"] = float("nan")
+        metrics[f"normalized_persistent_entropy_{dimension}"] = float("nan")
     if include_labels:
         metrics.update(
             nc_within_class_var=0.0,
@@ -193,12 +195,16 @@ def compute_topology(
     try:
         persistence = persistence_fn or _ripser
         diagrams = persistence(normalized, maxdim=maxdim)["dgms"]
-        metrics: dict = {"diagrams": diagrams, "intrinsic_dim": intrinsic_dimension(normalized)}
+        metrics: dict = {"diagrams": diagrams, "intrinsic_dim": intrinsic_dimension(normalized), "topology_valid": True}
         distance = distance_fn or _wasserstein
         for dimension in range(maxdim + 1):
             diagram = diagrams[dimension] if dimension < len(diagrams) else np.empty((0, 2))
             finite = remove_infinite(diagram)
             lifetimes = np.diff(finite).ravel()
+            entropy = persistent_entropy(diagram)
+            metrics[f"persistent_entropy_{dimension}"] = entropy["entropy"]
+            metrics[f"normalized_persistent_entropy_{dimension}"] = entropy["normalized_entropy"]
+            metrics[f"entropy_bar_count_{dimension}"] = entropy["positive_bar_count"]
             metrics[f"betti_{dimension}"] = len(diagram)
             metrics[f"total_persistence_{dimension}"] = float(lifetimes.sum())
             metrics[f"avg_persistence_{dimension}"] = float(lifetimes.mean()) if len(lifetimes) else 0.0
@@ -207,11 +213,10 @@ def compute_topology(
             metrics[f"long_lived_{dimension}"] = (
                 int(np.sum(lifetimes > np.percentile(lifetimes, 75))) if len(lifetimes) else 0
             )
-            shift = 0.0
+            shift = float("nan")
             if prev_diagrams is not None and dimension < len(prev_diagrams):
                 previous = remove_infinite(prev_diagrams[dimension])
-                if len(previous) and len(finite):
-                    shift = float(distance(previous, finite))
+                shift = float(distance(previous, finite)) if len(previous) or len(finite) else 0.0
             metrics[f"wasserstein_shift_{dimension}"] = shift
 
         if ideal_diagrams is not None:
@@ -230,10 +235,15 @@ def compute_topology(
                 )
             )
         return metrics
-    except Exception:
+    except Exception as error:
         if raise_on_error:
             raise
-        return _empty_metrics(maxdim, labels is not None)
+        metrics = _empty_metrics(maxdim, labels is not None)
+        metrics["topology_error"] = str(error)
+        for dimension in range(maxdim + 1):
+            metrics[f"wasserstein_shift_{dimension}"] = float("nan")
+            metrics[f"wasserstein_to_ideal_{dimension}"] = float("nan")
+        return metrics
 
 
 def analyze_topology_all_layers(
@@ -250,7 +260,9 @@ def analyze_topology_all_layers(
     ideal_diagrams = ideal_topology["diagrams"] if ideal_topology is not None else None
     for layer_idx in range(n_layers):
         states, labels = extract_all_hidden_states_with_labels(model, loader, device, layer_idx)
-        previous = prev_topology[layer_idx]["diagrams"] if prev_topology is not None else None
+        previous = (prev_topology[layer_idx]["diagrams"]
+                    if prev_topology is not None and prev_topology[layer_idx].get("topology_valid", True)
+                    else None)
         result[layer_idx] = compute_topology(
             states,
             labels,

@@ -5,6 +5,10 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ExperimentConfig:
+    task: str = "modular"
+    agreement_data_dir: str = "data/simple_agreement"
+    entropy_interval: int = 10
+    entropy_probe_size: int = 512
     modulus: int = 113
     exponent: int = 2
     input_range: int = 300
@@ -19,9 +23,14 @@ class ExperimentConfig:
     num_epochs: int = 10_000
     log_interval: int = 1
     tda_interval: int = 10
+    tda_max_samples: int = 800
     seed: int = 42
 
     def __post_init__(self) -> None:
+        if self.task not in ("modular", "simple_agreement"):
+            raise ValueError("unknown task")
+        if self.entropy_interval <= 0 or self.entropy_probe_size <= 0 or self.tda_interval < 0 or self.tda_max_samples < 2:
+            raise ValueError("entropy settings must be positive; tda_interval must be nonnegative")
         if self.modulus <= 0:
             raise ValueError("modulus must be positive")
         if self.input_range <= 0:
@@ -30,5 +39,5 @@ class ExperimentConfig:
             raise ValueError("train_fraction must be between 0 and 1")
         if self.d_model % self.n_heads != 0:
             raise ValueError("d_model must be divisible by n_heads")
-        if min(self.batch_size, self.num_epochs, self.log_interval, self.tda_interval) <= 0:
+        if min(self.batch_size, self.num_epochs, self.log_interval) <= 0:
             raise ValueError("batch size, epochs, and intervals must be positive")

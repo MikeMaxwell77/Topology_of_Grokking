@@ -6,3 +6,4 @@ grokking_history.pkl
 outputs/
 run_grokking.slurm
 .matplotlib
+data/simple_agreement/

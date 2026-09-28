@@ -14,8 +14,10 @@ def summarize_history(history: dict, *, grokking_threshold: float = 0.9) -> dict
     """Return machine-readable summary data without printing or plotting."""
     if not history.get("epoch"):
         return {"checkpoints": 0, "grokking_epoch": None, "layers": 0}
+    generalization = history.get("generalization_acc", [])
+    accuracies = generalization if generalization and all(x is not None for x in generalization) else history["val_acc"]
     crossing = next(
-        (index for index, accuracy in enumerate(history["val_acc"])
+        (index for index, accuracy in enumerate(accuracies)
          if accuracy > grokking_threshold),
         None,
     )
@@ -24,6 +26,8 @@ def summarize_history(history: dict, *, grokking_threshold: float = 0.9) -> dict
         "checkpoints": len(history["epoch"]),
         "final_train_accuracy": history["train_acc"][-1],
         "final_validation_accuracy": history["val_acc"][-1],
+        "final_generalization_accuracy": generalization[-1] if generalization else None,
+        "grokking_metric": "grammatical generalization" if accuracies is generalization else "validation",
         "grokking_epoch": history["epoch"][crossing] if crossing is not None else None,
         "layers": len(topology[0]) if topology else 0,
     }
@@ -39,7 +43,7 @@ def format_summary(summary: dict) -> str:
             f"Checkpoints: {summary['checkpoints']}",
             f"Final train accuracy: {summary['final_train_accuracy']:.4f}",
             f"Final validation accuracy: {summary['final_validation_accuracy']:.4f}",
-            f"Grokking: {grokking_text}",
+            f"Grokking: {grokking_text} ({summary.get('grokking_metric', 'validation')} threshold crossing)",
             f"Layers tracked: {summary['layers']}",
         )
     )

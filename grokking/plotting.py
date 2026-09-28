@@ -182,6 +182,9 @@ def save_tracking_plots(history, output_dir: str | Path = "plots") -> list[Path]
     figure, axes = plt.subplots(1, 2, figsize=(12, 4))
     axes[0].plot(history["epoch"], history["train_acc"], label="Train")
     axes[0].plot(history["epoch"], history["val_acc"], label="Validation")
+    if any(value is not None for value in history.get("generalization_acc", [])):
+        axes[0].plot(history["epoch"], history["generalization_acc"], label="Grammatical generalization")
+        axes[0].plot(history["epoch"], history["linear_rule_acc"], linestyle="--", label="Linear-rule diagnostic")
     axes[0].set(title="Accuracy", xlabel="Epoch", ylabel="Accuracy")
     axes[0].legend()
     axes[1].plot(history["epoch"], history["train_loss"])
@@ -194,6 +197,29 @@ def save_tracking_plots(history, output_dir: str | Path = "plots") -> list[Path]
     plt.close(figure)
     written.append(training_path)
 
+    if history.get("entropy"):
+        entropy_path = directory / "spectral_entropy.png"
+        records = history["entropy"]
+        steps = [record["optimizer_step"] for record in records]
+        figure, axes = plt.subplots(1, 3, figsize=(18, 4))
+        for layer in sorted(records[0]["layers"]):
+            for axis, key, title in zip(axes[:2], ("normalized_entropy", "effective_rank"),
+                                        ("Activation spectral entropy", "Effective rank")):
+                axis.plot(steps, [record["layers"][layer][key] for record in records], label=f"Layer {layer}")
+                axis.set(title=title, xlabel="Optimizer step")
+                axis.legend()
+        axes[2].plot(steps, [record["parameter_l2"] for record in records])
+        axes[2].set(title="Parameter L2 norm", xlabel="Optimizer step")
+        for axis in axes:
+            axis.grid(True, alpha=0.3)
+        figure.tight_layout()
+        figure.savefig(entropy_path, dpi=200, bbox_inches="tight")
+        plt.close(figure)
+        written.append(entropy_path)
+
+    if not topology_sample_indices(history):
+        return written
+
     metric_graphs = (
         ("betti", "Persistence Diagram Feature Count", "Number of bars", "topology_feature_counts.png"),
         ("long_lived", "Long-lived Feature Count", "Features above 75th percentile", "topology_long_lived.png"),
@@ -202,11 +228,22 @@ def save_tracking_plots(history, output_dir: str | Path = "plots") -> list[Path]
         ("wasserstein_to_ideal", "Distance to Dataset Diagram", "Wasserstein distance", "topology_to_ideal.png"),
     )
     for metric, title, ylabel, filename in metric_graphs:
+        if metric == "wasserstein_to_ideal" and history.get("ideal_topology") is None:
+            continue
         path = directory / filename
         _save_metric_grid(history, metric, title, ylabel, path)
         written.append(path)
 
     indices, layers, dimensions = _topology_layout(history)
+    if any(f"persistent_entropy_{dimension}" in history["topology"][indices[0]][layers[0]]
+           for dimension in dimensions):
+        for metric, title, ylabel in (
+            ("persistent_entropy", "Persistent Entropy", "Entropy (nats)"),
+            ("normalized_persistent_entropy", "Normalized Persistent Entropy", "Entropy / log(bar count)"),
+        ):
+            path = directory / f"{metric}.png"
+            _save_metric_grid(history, metric, title, ylabel, path)
+            written.append(path)
     epochs = [history["epoch"][index] for index in indices]
     geometry_path = directory / "representation_geometry.png"
     figure, axes = plt.subplots(1, 3, figsize=(18, 4))

@@ -13,6 +13,8 @@ class TinyTransformer(nn.Module):
         n_layers: int = 2,
         d_ff: int = 512,
         sequence_length: int = 4,
+        num_classes: int | None = None,
+        padding_idx: int | None = None,
     ) -> None:
         super().__init__()
         if n_layers <= 0:
@@ -24,7 +26,8 @@ class TinyTransformer(nn.Module):
         self.d_model = d_model
         self.n_layers = n_layers
         self.sequence_length = sequence_length
-        self.embed = nn.Embedding(vocab_size, d_model)
+        self.padding_idx = padding_idx
+        self.embed = nn.Embedding(vocab_size, d_model, padding_idx=padding_idx)
         self.pos_embed = nn.Parameter(torch.randn(sequence_length, d_model) * 0.02)
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model,
@@ -34,8 +37,8 @@ class TinyTransformer(nn.Module):
             activation="relu",
             batch_first=True,
         )
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
-        self.output = nn.Linear(d_model, vocab_size)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=n_layers, enable_nested_tensor=False)
+        self.output = nn.Linear(d_model, num_classes if num_classes is not None else vocab_size)
 
     def _embed(self, inputs: torch.Tensor) -> torch.Tensor:
         if inputs.ndim != 2 or inputs.shape[1] != self.sequence_length:
@@ -45,7 +48,8 @@ class TinyTransformer(nn.Module):
         return self.embed(inputs) + self.pos_embed.unsqueeze(0)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
-        hidden = self.transformer(self._embed(inputs))
+        mask = inputs.eq(self.padding_idx) if self.padding_idx is not None else None
+        hidden = self.transformer(self._embed(inputs), src_key_padding_mask=mask)
         return self.output(hidden[:, -1, :])
 
     def get_hidden_states(self, inputs: torch.Tensor, layer_idx: int) -> torch.Tensor:
@@ -53,8 +57,9 @@ class TinyTransformer(nn.Module):
         if not 0 <= layer_idx < self.n_layers:
             raise IndexError(f"layer_idx must be in [0, {self.n_layers})")
         hidden = self._embed(inputs)
+        mask = inputs.eq(self.padding_idx) if self.padding_idx is not None else None
         for index, layer in enumerate(self.transformer.layers):
-            hidden = layer(hidden)
+            hidden = layer(hidden, src_key_padding_mask=mask)
             if index == layer_idx:
                 return hidden[:, -1, :].detach()
         raise RuntimeError("transformer layer was not reached")
