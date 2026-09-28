@@ -6,7 +6,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class ExperimentConfig:
     modulus: int = 113
-    exponent: int = 1
+    exponent: int = 2
     input_range: int = 300
     d_model: int = 128
     n_heads: int = 4
