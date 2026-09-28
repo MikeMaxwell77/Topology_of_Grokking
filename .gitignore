@@ -8,4 +8,5 @@ run_grokking.slurm
 .matplotlib
 data/simple_agreement/
 *.slurm
-*.sh
+.env
+.env.*
