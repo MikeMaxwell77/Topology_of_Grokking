@@ -7,3 +7,4 @@ outputs/
 run_grokking.slurm
 .matplotlib
 data/simple_agreement/
+*.slurm
