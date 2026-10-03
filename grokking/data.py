@@ -35,7 +35,7 @@ class ModularArithmeticDataset(Dataset):
         self.r = r
 
         pairs = np.array(
-            [(a, b, c, p, (a**c + b**c) % p) for a in range(r) for b in range(r)],
+            [(a, b, c, p, (a * b + a + b) % p) for a in range(r) for b in range(r)],
             dtype=np.int64,
         )
         np.random.default_rng(seed).shuffle(pairs)
