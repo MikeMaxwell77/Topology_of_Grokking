@@ -68,6 +68,22 @@ def evaluate(model: nn.Module, loader, device: torch.device | str) -> float:
     return correct / total
 
 
+def evaluate_metrics(model, loader, device):
+    """Measure loss and accuracy at the same checkpoint, weighted by examples."""
+    model.eval()
+    loss_sum = correct = total = 0
+    with torch.no_grad():
+        for inputs, targets in loader:
+            targets = targets.to(device)
+            outputs = model(inputs.to(device))
+            loss_sum += nn.functional.cross_entropy(outputs, targets, reduction="sum").item()
+            correct += (outputs.argmax(dim=1) == targets).sum().item()
+            total += targets.numel()
+    if not total:
+        raise ValueError("cannot evaluate an empty loader")
+    return loss_sum / total, correct / total
+
+
 def extract_hidden_states(model, loader, device, layer_idx: int, *, with_labels: bool = False):
     """Extract finite hidden states, optionally paired with their labels."""
     model.eval()

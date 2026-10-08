@@ -72,8 +72,11 @@ def plot_history_dashboard(
     axes[0, 0].plot(epochs, history["val_acc"], label="Validation")
     axes[0, 0].set_title("Accuracy")
     axes[0, 0].legend()
-    axes[0, 1].plot(epochs, history["train_loss"])
-    axes[0, 1].set_title("Training Loss")
+    axes[0, 1].plot(epochs, history["train_loss"], label="Training")
+    if any(value is not None for value in history.get("val_loss", [])):
+        axes[0, 1].plot(epochs, history["val_loss"], label="Validation")
+    axes[0, 1].set_title("Loss")
+    axes[0, 1].legend()
     for layer in layers:
         axes[0, 2].plot(
             epochs,
@@ -187,8 +190,11 @@ def save_tracking_plots(history, output_dir: str | Path = "plots") -> list[Path]
         axes[0].plot(history["epoch"], history["linear_rule_acc"], linestyle="--", label="Linear-rule diagnostic")
     axes[0].set(title="Accuracy", xlabel="Epoch", ylabel="Accuracy")
     axes[0].legend()
-    axes[1].plot(history["epoch"], history["train_loss"])
-    axes[1].set(title="Training Loss", xlabel="Epoch", ylabel="Cross-entropy")
+    axes[1].plot(history["epoch"], history["train_loss"], label="Training")
+    if any(value is not None for value in history.get("val_loss", [])):
+        axes[1].plot(history["epoch"], history["val_loss"], label="Validation")
+    axes[1].set(title="Loss", xlabel="Epoch", ylabel="Cross-entropy")
+    axes[1].legend()
     for axis in axes:
         axis.grid(True, alpha=0.3)
     _draw_stage_changes(axes, history)

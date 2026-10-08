@@ -15,7 +15,8 @@ from .config import ExperimentConfig
 from .data import ModularArithmeticDataset
 from .network import TinyTransformer
 from .topology import analyze_topology_all_layers, compute_dataset_topology
-from .training import evaluate, train_epoch
+from .training import evaluate, evaluate_metrics, train_epoch
+from .dyck import build_dyck
 from .agreement import load_agreement
 from .entropy import spectral_entropy
 
@@ -57,8 +58,8 @@ def run_experiment(
     """Run training while allowing expensive analysis functions to be mocked."""
     device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
     torch.manual_seed(config.seed)
-    if config.task == "simple_agreement" and stage_exponents is not None:
-        raise ValueError("arithmetic stages do not apply to Simple Agreement")
+    if config.task != "modular" and stage_exponents is not None:
+        raise ValueError("arithmetic stages do not apply to language tasks")
     exponents = (
         stage_exponents
         if stage_exponents is not None
@@ -76,6 +77,11 @@ def run_experiment(
                          for key in ("g1_test", "g2_test")}
         model_options = dict(vocab_size=len(dataset_metadata["vocabulary"]),
                              sequence_length=6, num_classes=2, padding_idx=0)
+    elif config.task == "dyck":
+        exponents = (config.exponent,)
+        train_data, validation_data, dataset_metadata = build_dyck(
+            config.dyck_length, config.train_examples, config.validation_examples, config.seed)
+        model_options = dict(vocab_size=5, sequence_length=config.dyck_length + 1, num_classes=2)
     else:
         train_data, validation_data = build_datasets(config, exponents[0])
         model_options = dict(vocab_size=max(config.input_range + 2, config.modulus + 1, max(exponents) + 1))
@@ -102,6 +108,7 @@ def run_experiment(
         "train_acc": [],
         "val_acc": [],
         "train_loss": [],
+        "val_loss": [],
         "stage": [],
         "exponent": [],
         "tda_computed": [],
@@ -151,13 +158,20 @@ def run_experiment(
         should_log = should_log or epoch == config.num_epochs - 1
         if not (should_log or should_compute_topology):
             continue
-        validation_accuracy = evaluate(model, validation_loader, device)
+        validation_loss = None
+        if config.task == "dyck":
+            train_loss, train_accuracy = evaluate_metrics(model, train_loader, device)
+            validation_loss, validation_accuracy = evaluate_metrics(model, validation_loader, device)
+        else:
+            validation_accuracy = evaluate(model, validation_loader, device)
         extra_accuracy = {key: evaluate(model, loader, device) for key, loader in extra_loaders.items()}
         l1_norm, l2_norm = parameter_norms(model)
         if should_log:
             print(f"Epoch {epoch:5d} | Train Loss: {train_loss:.4f} | "
                   f"Train Acc: {train_accuracy:.4f} | Val Acc: {validation_accuracy:.4f} | "
                   f"L1: {l1_norm:.4f} | L2: {l2_norm:.4f}")
+            if validation_loss is not None:
+                print(f"  Validation Loss: {validation_loss:.4f}")
             if extra_accuracy:
                 print(f"  Grammatical generalization: {extra_accuracy['g1_test']:.4f} | "
                       f"Linear-rule diagnostic: {extra_accuracy['g2_test']:.4f}")
@@ -170,6 +184,7 @@ def run_experiment(
         history["train_acc"].append(train_accuracy)
         history["val_acc"].append(validation_accuracy)
         history["train_loss"].append(train_loss)
+        history["val_loss"].append(validation_loss)
         history["stage"].append(stage)
         history["exponent"].append(exponents[stage] if config.task == "modular" else None)
         history["tda_computed"].append(should_compute_topology)
@@ -214,8 +229,11 @@ def _comma_separated_integers(value: str) -> tuple[int, ...]:
 def parse_args(argv=None) -> argparse.Namespace:
     defaults = ExperimentConfig()
     parser = argparse.ArgumentParser(description="Train a transformer and track activation topology.")
-    parser.add_argument("--task", choices=("modular", "simple_agreement"), default=defaults.task)
+    parser.add_argument("--task", choices=("modular", "simple_agreement", "dyck"), default=defaults.task)
     parser.add_argument("--agreement-data-dir", default=defaults.agreement_data_dir)
+    parser.add_argument("--dyck-length", type=int, default=defaults.dyck_length)
+    parser.add_argument("--train-examples", type=int, default=defaults.train_examples)
+    parser.add_argument("--validation-examples", type=int, default=defaults.validation_examples)
     parser.add_argument("--entropy-interval", type=int, default=defaults.entropy_interval,
                         help="spectral entropy cadence in epochs (also records initialization and final epoch)")
     parser.add_argument("--entropy-probe-size", type=int, default=defaults.entropy_probe_size)
@@ -247,6 +265,9 @@ def config_from_args(arguments: argparse.Namespace) -> ExperimentConfig:
     return ExperimentConfig(
         task=arguments.task,
         agreement_data_dir=arguments.agreement_data_dir,
+        dyck_length=arguments.dyck_length,
+        train_examples=arguments.train_examples,
+        validation_examples=arguments.validation_examples,
         entropy_interval=arguments.entropy_interval,
         entropy_probe_size=arguments.entropy_probe_size,
         modulus=arguments.modulus,

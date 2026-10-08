@@ -7,6 +7,9 @@ from dataclasses import dataclass
 class ExperimentConfig:
     task: str = "modular"
     agreement_data_dir: str = "data/simple_agreement"
+    dyck_length: int = 32
+    train_examples: int = 512
+    validation_examples: int = 512
     entropy_interval: int = 10
     entropy_probe_size: int = 512
     modulus: int = 113
@@ -27,8 +30,13 @@ class ExperimentConfig:
     seed: int = 42
 
     def __post_init__(self) -> None:
-        if self.task not in ("modular", "simple_agreement"):
+        if self.task not in ("modular", "simple_agreement", "dyck"):
             raise ValueError("unknown task")
+        if self.task == "dyck":
+            if self.dyck_length < 4 or self.dyck_length % 2:
+                raise ValueError("Dyck length must be even and at least 4")
+            if min(self.train_examples, self.validation_examples) < 2 or self.train_examples % 2 or self.validation_examples % 2:
+                raise ValueError("Dyck split sizes must be even and at least 2")
         if self.entropy_interval <= 0 or self.entropy_probe_size <= 0 or self.tda_interval < 0 or self.tda_max_samples < 2:
             raise ValueError("entropy settings must be positive; tda_interval must be nonnegative")
         if self.modulus <= 0:

@@ -101,6 +101,28 @@ number can solve this adapted task. This experiment tests generalization against
 nearest-noun shortcut, not unrestricted hierarchical syntax, and does not reproduce
 the authors' language-model objective or guarantee delayed grokking.
 
+## Dyck-2 bracket classification
+
+```bash
+python model.py --task dyck --dyck-length 32 --train-examples 512 --validation-examples 512 --batch-size 64 --epochs 500 --entropy-interval 5 --tda-interval 25 --tda-max-samples 128 --output-dir outputs/dyck
+```
+
+This task classifies valid/invalid strings of `()` and `[]`. Both classes have
+balanced opening/closing counts for each type and balanced nesting when bracket
+types are ignored. Invalid examples swap two differently typed closing brackets,
+so counting alone cannot solve the task. The generator is a constrained random
+walk, not a uniform sample over all Dyck strings. Each split is balanced, unique,
+fixed across epochs, and disjoint from the other split; the seed and generation
+settings are saved in history. Length must be even and at least 4; split sizes
+must be even. Small lengths may not support the requested number of unique examples.
+
+The model reads all brackets plus a final readout token and predicts two classes.
+Training and held-out loss/accuracy are measured at the same checkpoint; both
+loss curves are plotted. Reduce `--train-examples` to encourage memorization.
+This measures generalization to unseen strings at the same length, not longer
+strings or deeper nesting explicitly. Delayed generalization is not guaranteed.
+Entropy and topology tracking remain available; no download is required.
+
 ## Entropy and topology tracking
 
 Both tasks now save complementary measurements:
