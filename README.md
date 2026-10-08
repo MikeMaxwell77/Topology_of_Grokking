@@ -101,6 +101,32 @@ number can solve this adapted task. This experiment tests generalization against
 nearest-noun shortcut, not unrestricted hierarchical syntax, and does not reproduce
 the authors' language-model objective or guarantee delayed grokking.
 
+## TinyStories
+
+Prepare a small subset once, then train offline:
+
+```bash
+python -m pip install -r requirements.txt
+python -m grokking.tinystories --train-stories 128 --validation-stories 128
+python model.py --task tinystories --context-length 64 --train-examples 512 --validation-examples 512 --batch-size 64 --epochs 500 --entropy-interval 5 --tda-interval 25 --tda-max-samples 128 --output-dir outputs/tinystories
+```
+
+Uses [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories), with
+fixed UTF-8 byte contexts predicting the following byte (256 classes). This
+adapts the existing single-target model; it is not the original subword
+language-model setup. Contexts never cross story boundaries. Training and
+validation use different stories; identical training contexts are excluded
+from validation. Examples are sampled once from the prepared corpus using the
+experiment seed and reused every epoch. Requested counts are capped by the
+number of available unique examples.
+
+Training and validation loss/accuracy are evaluated at the same checkpoint;
+both loss curves are plotted. Entropy and topology remain available. A small
+training sample encourages memorization; delayed generalization is not
+guaranteed, and natural text need not reach 100% held-out accuracy. The downloader
+records the upstream revision and file hashes, verified during offline loading.
+`run_language.slurm` now runs this task; prepare or copy the data on the cluster first.
+
 ## Dyck-2 bracket classification
 
 ```bash

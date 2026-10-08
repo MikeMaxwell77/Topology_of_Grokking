@@ -17,6 +17,7 @@ from .network import TinyTransformer
 from .topology import analyze_topology_all_layers, compute_dataset_topology
 from .training import evaluate, evaluate_metrics, train_epoch
 from .dyck import build_dyck
+from .tinystories import load_tinystories
 from .agreement import load_agreement
 from .entropy import spectral_entropy
 
@@ -77,6 +78,12 @@ def run_experiment(
                          for key in ("g1_test", "g2_test")}
         model_options = dict(vocab_size=len(dataset_metadata["vocabulary"]),
                              sequence_length=6, num_classes=2, padding_idx=0)
+    elif config.task == "tinystories":
+        exponents = (config.exponent,)
+        train_data, validation_data, dataset_metadata = load_tinystories(
+            config.tinystories_data_dir, config.context_length,
+            config.train_examples, config.validation_examples, config.seed)
+        model_options = dict(vocab_size=256, sequence_length=config.context_length)
     elif config.task == "dyck":
         exponents = (config.exponent,)
         train_data, validation_data, dataset_metadata = build_dyck(
@@ -159,7 +166,7 @@ def run_experiment(
         if not (should_log or should_compute_topology):
             continue
         validation_loss = None
-        if config.task == "dyck":
+        if config.task in ("dyck", "tinystories"):
             train_loss, train_accuracy = evaluate_metrics(model, train_loader, device)
             validation_loss, validation_accuracy = evaluate_metrics(model, validation_loader, device)
         else:
@@ -229,8 +236,10 @@ def _comma_separated_integers(value: str) -> tuple[int, ...]:
 def parse_args(argv=None) -> argparse.Namespace:
     defaults = ExperimentConfig()
     parser = argparse.ArgumentParser(description="Train a transformer and track activation topology.")
-    parser.add_argument("--task", choices=("modular", "simple_agreement", "dyck"), default=defaults.task)
+    parser.add_argument("--task", choices=("modular", "simple_agreement", "dyck", "tinystories"), default=defaults.task)
     parser.add_argument("--agreement-data-dir", default=defaults.agreement_data_dir)
+    parser.add_argument("--tinystories-data-dir", default=defaults.tinystories_data_dir)
+    parser.add_argument("--context-length", type=int, default=defaults.context_length)
     parser.add_argument("--dyck-length", type=int, default=defaults.dyck_length)
     parser.add_argument("--train-examples", type=int, default=defaults.train_examples)
     parser.add_argument("--validation-examples", type=int, default=defaults.validation_examples)
@@ -265,6 +274,8 @@ def config_from_args(arguments: argparse.Namespace) -> ExperimentConfig:
     return ExperimentConfig(
         task=arguments.task,
         agreement_data_dir=arguments.agreement_data_dir,
+        tinystories_data_dir=arguments.tinystories_data_dir,
+        context_length=arguments.context_length,
         dyck_length=arguments.dyck_length,
         train_examples=arguments.train_examples,
         validation_examples=arguments.validation_examples,

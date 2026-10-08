@@ -7,6 +7,8 @@ from dataclasses import dataclass
 class ExperimentConfig:
     task: str = "modular"
     agreement_data_dir: str = "data/simple_agreement"
+    tinystories_data_dir: str = "data/tinystories"
+    context_length: int = 64
     dyck_length: int = 32
     train_examples: int = 512
     validation_examples: int = 512
@@ -30,8 +32,10 @@ class ExperimentConfig:
     seed: int = 42
 
     def __post_init__(self) -> None:
-        if self.task not in ("modular", "simple_agreement", "dyck"):
+        if self.task not in ("modular", "simple_agreement", "dyck", "tinystories"):
             raise ValueError("unknown task")
+        if self.task == "tinystories" and min(self.context_length, self.train_examples, self.validation_examples) <= 0:
+            raise ValueError("context length and example counts must be positive")
         if self.task == "dyck":
             if self.dyck_length < 4 or self.dyck_length % 2:
                 raise ValueError("Dyck length must be even and at least 4")
