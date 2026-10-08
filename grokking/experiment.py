@@ -185,7 +185,7 @@ def run_experiment(
         else:
             current_topology = {layer: {} for layer in range(config.n_layers)}
         history["topology"].append(current_topology)
-
+        """
         if validation_accuracy > stage_threshold and stage + 1 < len(exponents):
             stage += 1
             new_train, new_validation = build_datasets(config, exponents[stage])
@@ -197,7 +197,8 @@ def run_experiment(
             ideal_topology = (dataset_topology_fn(full_data, config.modulus, exponents[stage],
                                                  max_samples=2_000) if config.tda_interval else None)
             history["ideal_topology"] = ideal_topology
-
+        """
+            
     return model, history
 
 
