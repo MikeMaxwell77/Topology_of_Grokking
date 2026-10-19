@@ -192,3 +192,9 @@ grokking threshold. Spectral terminology is informed by
 [2604.13123](https://arxiv.org/abs/2604.13123) and
 [2603.29262](https://arxiv.org/abs/2603.29262); persistence-lifetime entropy follows
 the [persistent entropy literature](https://arxiv.org/abs/1605.02885).
+
+## Arithmetic circuit development
+
+The isolated modular-addition training and offline intervention pipeline, legacy audit,
+pilot results and reproducible commands are in [research/README.md](research/README.md).
+See [the pilot report](research/PILOT_REPORT.md) for observed results and limitations.

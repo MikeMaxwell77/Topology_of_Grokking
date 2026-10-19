@@ -1,0 +1,508 @@
+[
+  {
+    "run": "21870574",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.12480246913580247,
+      "max": 0.9993333333333333,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.13314814814814815,
+      "max": 1.0,
+      "sustained_99_epoch": null
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "run": "21872428-3layers",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 3,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.49106172839506174,
+      "max": 0.9230555555555555,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.5855714285714285,
+      "max": 0.9856507936507937,
+      "sustained_99_epoch": null
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "run": "21872584-2attentionHeads",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 3,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.5178148148148148,
+      "max": 0.7537037037037037,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.5718095238095238,
+      "max": 0.825063492063492,
+      "sustained_99_epoch": null
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1
+    ]
+  },
+  {
+    "run": "21876780-mod223",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.841320987654321,
+      "max": 0.9972962962962963,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.7676560846560847,
+      "max": 0.9955714285714286,
+      "sustained_99_epoch": null
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "run": "21880203",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.3046913580246914,
+      "max": 0.9991481481481481,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.31338095238095237,
+      "max": 0.9999153439153439,
+      "sustained_99_epoch": null
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "run": "21884225_mod59",
+    "config": {
+      "modulus": 113,
+      "exponent": 1,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10000,
+      "log_interval": 10,
+      "tda_interval": 100,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology"
+    ],
+    "samples": 1000,
+    "train_acc": {
+      "last": 0.9695308641975309,
+      "max": 0.9999629629629629,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.999984126984127,
+      "max": 1.0,
+      "sustained_99_epoch": 3430
+    },
+    "split_audit": {
+      "identical_token_overlap_within_stage": 0,
+      "ordered_residue_pair_overlap": 11475,
+      "validation_fraction_residue_pair_seen_in_train": 0.8792698412698413
+    },
+    "exponents": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "run": "agreement_smoke",
+    "config": {
+      "task": "simple_agreement",
+      "agreement_data_dir": "data/simple_agreement",
+      "entropy_interval": 1,
+      "entropy_probe_size": 512,
+      "modulus": 113,
+      "exponent": 2,
+      "input_range": 300,
+      "d_model": 16,
+      "n_heads": 2,
+      "n_layers": 1,
+      "d_ff": 32,
+      "train_fraction": 0.3,
+      "batch_size": 512,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 2,
+      "log_interval": 1,
+      "tda_interval": 1,
+      "tda_max_samples": 32,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "model_options",
+      "dataset",
+      "optimizer_step",
+      "parameter_l1",
+      "parameter_l2",
+      "generalization_acc",
+      "linear_rule_acc",
+      "entropy",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology",
+      "entropy_definition"
+    ],
+    "samples": 2,
+    "train_acc": {
+      "last": 0.9812088337853545,
+      "max": 0.9812088337853545,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 1.0,
+      "max": 1.0,
+      "sustained_99_epoch": null
+    },
+    "exponents": [
+      null
+    ]
+  },
+  {
+    "run": "dyck_smoke",
+    "config": {
+      "task": "dyck",
+      "agreement_data_dir": "data/simple_agreement",
+      "dyck_length": 32,
+      "train_examples": 512,
+      "validation_examples": 512,
+      "entropy_interval": 10,
+      "entropy_probe_size": 512,
+      "modulus": 113,
+      "exponent": 2,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 50,
+      "log_interval": 10,
+      "tda_interval": 0,
+      "tda_max_samples": 800,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "model_options",
+      "dataset",
+      "optimizer_step",
+      "parameter_l1",
+      "parameter_l2",
+      "generalization_acc",
+      "linear_rule_acc",
+      "entropy",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "val_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology",
+      "entropy_definition"
+    ],
+    "samples": 6,
+    "train_acc": {
+      "last": 0.533203125,
+      "max": 0.533203125,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.4921875,
+      "max": 0.5,
+      "sustained_99_epoch": null
+    },
+    "exponents": [
+      null
+    ]
+  },
+  {
+    "run": "tinystories_smoke",
+    "config": {
+      "task": "tinystories",
+      "agreement_data_dir": "data/simple_agreement",
+      "tinystories_data_dir": "data/tinystories",
+      "context_length": 64,
+      "dyck_length": 32,
+      "train_examples": 512,
+      "validation_examples": 512,
+      "entropy_interval": 5,
+      "entropy_probe_size": 512,
+      "modulus": 113,
+      "exponent": 2,
+      "input_range": 300,
+      "d_model": 128,
+      "n_heads": 4,
+      "n_layers": 2,
+      "d_ff": 512,
+      "train_fraction": 0.3,
+      "batch_size": 64,
+      "learning_rate": 0.001,
+      "weight_decay": 1.0,
+      "num_epochs": 10,
+      "log_interval": 5,
+      "tda_interval": 0,
+      "tda_max_samples": 800,
+      "seed": 42
+    },
+    "keys": [
+      "config",
+      "model_options",
+      "dataset",
+      "optimizer_step",
+      "parameter_l1",
+      "parameter_l2",
+      "generalization_acc",
+      "linear_rule_acc",
+      "entropy",
+      "epoch",
+      "train_acc",
+      "val_acc",
+      "train_loss",
+      "val_loss",
+      "stage",
+      "exponent",
+      "tda_computed",
+      "topology",
+      "ideal_topology",
+      "entropy_definition"
+    ],
+    "samples": 3,
+    "train_acc": {
+      "last": 0.37890625,
+      "max": 0.37890625,
+      "sustained_99_epoch": null
+    },
+    "val_acc": {
+      "last": 0.3125,
+      "max": 0.3125,
+      "sustained_99_epoch": null
+    },
+    "exponents": [
+      null
+    ]
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "run": "circuit_pilot",
+    "config": {
+      "p": 113,
+      "width": 128,
+      "heads": 4,
+      "mlp": 512,
+      "seed": 0,
+      "fraction": 0.3,
+      "lr": 0.001,
+      "decay": 1.0
+    },
+    "initial": {
+      "step": 0,
+      "train": {
+        "loss": 4.922296615906581,
+        "accuracy": 0.009138381201044387
+      },
+      "heldout": {
+        "loss": 4.9126856139092645,
+        "accuracy": 0.00894954692918671
+      }
+    },
+    "final": {
+      "step": 1000,
+      "train": {
+        "loss": 8.155051179953308e-05,
+        "accuracy": 1.0
+      },
+      "heldout": {
+        "loss": 21.452652759214864,
+        "accuracy": 0.26334041839131894
+      }
+    },
+    "timing": {
+      "memorization": 350,
+      "generalization": null,
+      "delayed_generalization": false,
+      "rule": "accuracy >= .99 for five logged evaluations; delayed requires >=500 steps lag and five heldout evaluations below .5 after memorization"
+    }
+  },
+  {
+    "run": "circuit_p31_validation",
+    "config": {
+      "p": 31,
+      "width": 128,
+      "heads": 4,
+      "mlp": 512,
+      "seed": 0,
+      "fraction": 0.3,
+      "lr": 0.001,
+      "decay": 1.0
+    },
+    "initial": {
+      "step": 0,
+      "train": {
+        "loss": 3.625682275497427,
+        "accuracy": 0.024305555555555556
+      },
+      "heldout": {
+        "loss": 3.6661334593365202,
+        "accuracy": 0.03566121842496285
+      }
+    },
+    "final": {
+      "step": 12000,
+      "train": {
+        "loss": 5.800608415657829e-08,
+        "accuracy": 1.0
+      },
+      "heldout": {
+        "loss": 35.17303171527006,
+        "accuracy": 0.09361069836552749
+      }
+    },
+    "timing": {
+      "memorization": 100,
+      "generalization": null,
+      "delayed_generalization": false,
+      "rule": "accuracy >= .99 for five logged evaluations; delayed requires >=500 steps lag and five heldout evaluations below .5 after memorization"
+    }
+  },
+  {
+    "run": "circuit_scaled_p31",
+    "config": {
+      "initialization": "scaled_normal",
+      "p": 31,
+      "width": 128,
+      "heads": 4,
+      "mlp": 512,
+      "seed": 0,
+      "fraction": 0.3,
+      "lr": 0.001,
+      "decay": 1.0
+    },
+    "initial": {
+      "step": 0,
+      "train": {
+        "loss": 3.4319792765383386,
+        "accuracy": 0.04861111111111111
+      },
+      "heldout": {
+        "loss": 3.442217055557879,
+        "accuracy": 0.02823179791976226
+      }
+    },
+    "final": {
+      "step": 12000,
+      "train": {
+        "loss": 5.696565755754803e-08,
+        "accuracy": 1.0
+      },
+      "heldout": {
+        "loss": 36.13753349865247,
+        "accuracy": 0.03566121842496285
+      }
+    },
+    "timing": {
+      "memorization": 100,
+      "generalization": null,
+      "delayed_generalization": false,
+      "rule": "accuracy >= .99 for five logged evaluations; delayed requires >=500 steps lag and five heldout evaluations below .5 after memorization"
+    }
+  }
+]
