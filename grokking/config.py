@@ -19,7 +19,7 @@ class ExperimentConfig:
     input_range: int = 300
     d_model: int = 128
     n_heads: int = 4
-    n_layers: int = 2
+    n_layers: int = 1
     d_ff: int = 512
     train_fraction: float = 0.3
     batch_size: int = 512
