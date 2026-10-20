@@ -1,5 +1,11 @@
 # Topology of Grokking
 
+The controlled modular-addition topology study now has a separate entry point:
+`python -m grokking.study train`. See [methods, audit, validation, and exact commands](research/TOPOLOGY_STUDY.md).
+It uses fixed splits/probes, resumable optimizer-step checkpoints and offline raw/RMS-normalized
+H0/H1 analysis via `python -m grokking.study_analysis`. The historical paths below are preserved.
+Only the tiny smoke workflow has been validated; a full pilot has not yet established grokking.
+
 The code is split by responsibility so individual pieces can be imported and tested without
 starting an experiment:
 

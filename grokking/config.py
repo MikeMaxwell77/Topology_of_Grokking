@@ -53,3 +53,44 @@ class ExperimentConfig:
             raise ValueError("d_model must be divisible by n_heads")
         if min(self.batch_size, self.num_epochs, self.log_interval) <= 0:
             raise ValueError("batch size, epochs, and intervals must be positive")
+
+@dataclass(frozen=True)
+class TopologyStudyConfig:
+    """Fixed-task study; intentionally separate from historical experiments."""
+
+    modulus: int = 113
+    train_fraction: float = 0.3
+    d_model: int = 128
+    n_heads: int = 4
+    d_ff: int = 512
+    learning_rate: float = 0.001
+    weight_decay: float = 1.0
+    beta1: float = 0.9
+    beta2: float = 0.98
+    adam_eps: float = 1e-8
+    steps: int = 40_000
+    checkpoint_interval: int = 50
+    evaluation_interval: int = 50
+    evaluation_batch_size: int = 1024
+    probe_size: int = 256
+    seed: int = 42
+    split_seed: int = 598
+    probe_seed: int = 599
+    analysis_seed: int = 600
+    init_std: float = 0.1
+
+    def __post_init__(self):
+        if min(self.modulus, self.d_model, self.n_heads, self.d_ff,
+               self.checkpoint_interval, self.evaluation_interval,
+               self.evaluation_batch_size, self.probe_size) <= 0 or self.steps < 0:
+            raise ValueError('dimensions and intervals must be positive; steps nonnegative')
+        if self.modulus < 2 or not 0 < self.train_fraction < 1:
+            raise ValueError('need modulus >= 2 and 0 < train_fraction < 1')
+        if not 0 < int(self.modulus ** 2 * self.train_fraction) < self.modulus ** 2:
+            raise ValueError('both splits must be nonempty')
+        if self.d_model % self.n_heads or self.probe_size > self.modulus ** 2:
+            raise ValueError('invalid head dimension or probe count')
+        if self.learning_rate <= 0 or self.weight_decay < 0 or self.init_std <= 0 or self.adam_eps <= 0:
+            raise ValueError('invalid optimizer or initialization setting')
+        if not 0 <= self.beta1 < 1 or not 0 <= self.beta2 < 1:
+            raise ValueError('Adam betas must lie in [0, 1)')
