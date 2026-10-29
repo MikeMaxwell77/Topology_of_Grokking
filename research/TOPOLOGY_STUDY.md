@@ -76,6 +76,10 @@ python -m grokking.study_analysis --checkpoints 'outputs/topology_fraction80/che
 
 ## Validation and stages remaining
 
+For CUDA jobs, export `CUBLAS_WORKSPACE_CONFIG=:4096:8` in the Slurm script before `srun python ...`. The training runner supplies this default before CUDA initialization when the variable is unset; deterministic algorithms remain enabled. An explicitly supplied value must be `:4096:8` or `:16:8`. Launching with the export is also necessary when using an older copy of the runner. If the initial evaluation failed before checkpoint zero was saved, restart with a fresh output directory rather than `--resume`.
+
+Git provenance is queried relative to the training source directory. Copies without Git metadata still train, with null commit/dirty/diff fields and saved source snapshots; missing Git metadata does not cause the training failure.
+
 All 32 tests passed with the local environment. The complete suite required execution outside the sandbox because three existing language-task tests use restricted temporary directories; those tests passed without code changes.
 
 The smoke run completed eight optimizer updates with interruption/resume at step four and five analyzed checkpoints. All 20 representation/geometry measurements succeeded; CSV/JSON/NPZ exports and plots were generated under `outputs/topology_smoke_validated_analysis` (final implementation) and `outputs/topology_smoke_analysis` (initial validation). Neither behavioral event occurred within this tiny budget. This is workflow validation only.

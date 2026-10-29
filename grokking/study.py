@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict, fields
 import json
+import os
 from pathlib import Path
 import random
 import subprocess
@@ -80,7 +81,9 @@ def restore_rng(state):
 
 def provenance():
     def git(*args):
-        return subprocess.check_output(['git', *args], text=True).strip()
+        return subprocess.check_output(['git', *args], text=True,
+                                       cwd=Path(__file__).resolve().parent,
+                                       stderr=subprocess.DEVNULL).strip()
     try:
         commit, dirty = git('rev-parse', 'HEAD'), bool(git('status', '--porcelain'))
         diff = git('diff', 'HEAD')
@@ -116,6 +119,8 @@ def run(config, output_dir, *, device='cpu', resume=None, stop_at=None):
     output.mkdir(parents=True, exist_ok=True)
     if not resume and any(output.iterdir()):
         raise ValueError('new training requires an empty output directory')
+    # Configure cuBLAS before seeding or moving the model initializes CUDA.
+    os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
     torch.use_deterministic_algorithms(True)
     random.seed(config.seed)
     np.random.seed(config.seed)
