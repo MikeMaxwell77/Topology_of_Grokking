@@ -112,6 +112,9 @@ def sweep(checkpoints, output_dir, clusters=8, strengths=(0., .25, .5, 1.),
         checkpoints=[str(Path(p).resolve()) for p in checkpoints],
         torch_version=str(torch.__version__), source=Path(__file__).read_text()), indent=2),
         encoding='utf-8')
+    from .intervention_report import write_report
+    if 0. in strengths and any(s > 0 for s in strengths):
+        write_report(output)
     return rows
 
 

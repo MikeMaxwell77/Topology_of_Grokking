@@ -210,6 +210,11 @@ Load only trusted local checkpoints because they include pickled optimizer/RNG o
 
 ## Execution record
 
+Experiment 1 now has a concrete [run protocol](research/EXPERIMENT_01.md), including
+the early operational results and fixed outcome/selection rules. The sweep also
+automatically produces paired contrasts in CSV and a Markdown report using
+`grokking/intervention_report.py`.
+
 On 2026-10-29, both new intervention unit tests passed. The evaluation sweep completed
 on five tiny checkpoints (steps 0,2,4,6,8), producing 220 condition/split rows under
 `outputs/cluster_intervention_smoke`. Maximum zero-intervention loss discrepancy from

@@ -3,9 +3,26 @@ import unittest
 import torch
 
 from grokking.interventions import control_delta, displacement, fit_clusters, geometry
+from grokking.intervention_report import contrasts
 
 
 class InterventionTests(unittest.TestCase):
+    def test_paired_report_contrast(self):
+        common = dict(checkpoint='example.pt', split='heldout', step=100,
+                      accuracy=.8, between_fraction=.5, displacement_rms=1.)
+        rows = [dict(common, strength=0., condition='targeted', loss=2.),
+                dict(common, strength=.5, condition='targeted', loss=5.)]
+        for kind in ('random', 'rotated'):
+            rows.extend(dict(common, strength=.5, condition=kind, loss=loss)
+                        for loss in (3., 4.))
+        result = contrasts(rows)
+        self.assertEqual(len(result), 2)
+        for row in result:
+            self.assertEqual(row['targeted_loss_increase'], 3.)
+            self.assertEqual(row['control_mean_loss_increase'], 1.5)
+            self.assertEqual(row['excess_targeted_loss'], 1.5)
+            self.assertEqual(row['max_displacement_rms_mismatch'], 0.)
+
     def test_centers_collapse_and_controls_match(self):
         z = torch.tensor([[-3., -.1], [-3., .1], [3., -.1], [3., .1]])
         centers = fit_clusters(z, 2)
