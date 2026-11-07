@@ -93,7 +93,8 @@ training-fitted centers. Groups and transformations must be fitted without held-
 answers. A pre-existing immature representation may lack a usable readout; a negative
 result does not refute every cluster hypothesis. A positive result is conditional
 on the already-trained downstream network and must exceed matched-control effects.
-This intervention is proposed, not implemented in the first sweep.
+This intervention is implemented as the separate Experiment 2 evaluation sweep;
+see research/EXPERIMENT_02.md. It is not part of the first necessity sweep.
 
 ### 3. Timing: interfere during learning
 

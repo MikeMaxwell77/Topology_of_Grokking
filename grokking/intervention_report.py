@@ -52,13 +52,20 @@ def write_report(output):
         writer.writeheader()
         writer.writerows(summary)
     heldout = [r for r in summary if r['split'] == 'heldout']
-    lines = ['# Experiment 1: exploratory necessity sweep', '',
+    intervention = rows[0].get('intervention', 'contract')
+    title = ('Experiment 1: exploratory necessity sweep' if intervention == 'contract'
+             else f'Experiment 2: exploratory sufficiency sweep ({intervention})')
+    lines = ['# ' + title, '',
              'Positive excess loss means the targeted intervention is more damaging than',
              'the mean matched control. This is not a significance test or proof of clustering',
              'causing grokking. Control draws are not independent training seeds.', '',
              'Inspect contrasts.csv for both splits, geometry changes, and norm matching.', '',
              '| Step | Strength | Control | Clean accuracy | Target accuracy | Excess loss | Control loss SD |',
              '|---:|---:|---|---:|---:|---:|---:|']
+    if intervention != 'contract':
+        lines[2:2] = ['Negative excess loss means the targeted intervention improves loss relative',
+                      'to matched controls. Also require improvement over clean performance;',
+                      'post-generalization checkpoints do not establish pre-grokking sufficiency.', '']
     for r in heldout:
         sd = 'NA' if r['control_loss_sd'] is None else f"{r['control_loss_sd']:.4f}"
         lines.append(f"| {r['step']} | {r['strength']} | {r['control']} | "

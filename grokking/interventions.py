@@ -30,9 +30,17 @@ def fit_clusters(z, k, seed=601, iterations=100):
     return centers
 
 
-def displacement(z, centers, mean, strength):
+def displacement(z, centers, mean, strength, intervention='contract'):
     assignments = torch.cdist(z, centers).argmin(1)
-    return -strength * (centers[assignments] - mean), assignments
+    if intervention == 'contract':
+        delta = -strength * (centers[assignments] - mean)
+    elif intervention == 'tighten':
+        delta = -strength * (z - centers[assignments])
+    elif intervention == 'separate':
+        delta = strength * (centers[assignments] - mean)
+    else:
+        raise ValueError(f'unknown intervention: {intervention}')
+    return delta, assignments
 
 
 def control_delta(delta, kind, seed):
@@ -64,7 +72,9 @@ def geometry(z, groups):
 
 @torch.no_grad()
 def sweep(checkpoints, output_dir, clusters=8, strengths=(0., .25, .5, 1.),
-          repeats=5, seed=601):
+          repeats=5, seed=601, intervention='contract'):
+    if intervention not in ('contract', 'tighten', 'separate'):
+        raise ValueError('unknown intervention')
     if repeats < 1 or any(not 0 <= s <= 1 for s in strengths):
         raise ValueError('positive repeats and strengths in [0, 1] required')
     output = Path(output_dir)
@@ -86,7 +96,7 @@ def sweep(checkpoints, output_dir, clusters=8, strengths=(0., .25, .5, 1.),
                     'checkpoint': str(Path(path).resolve())},
                    output / f'clusters_{len(rows):08d}.pt')
         for strength in strengths:
-            delta, groups = displacement(z, centers, mean, strength)
+            delta, groups = displacement(z, centers, mean, strength, intervention)
             conditions = [('targeted', -1, delta)]
             if strength:
                 conditions += [(kind, repeat, control_delta(delta, kind, seed + 1 + repeat))
@@ -97,7 +107,8 @@ def sweep(checkpoints, output_dir, clusters=8, strengths=(0., .25, .5, 1.),
                 for split in ('train', 'heldout'):
                     idx = indices[split]
                     row = dict(checkpoint=str(Path(path).resolve()), step=saved['step'],
-                               strength=strength, condition=kind, repeat=repeat, split=split,
+                               strength=strength, intervention=intervention,
+                               condition=kind, repeat=repeat, split=split,
                                loss=F.cross_entropy(logits[idx], y[idx]).item(),
                                accuracy=(logits[idx].argmax(1) == y[idx]).double().mean().item(),
                                displacement_rms=change[idx].square().sum(1).mean().sqrt().item(),
@@ -107,6 +118,7 @@ def sweep(checkpoints, output_dir, clusters=8, strengths=(0., .25, .5, 1.),
     (output / 'results.json').write_text(json.dumps(rows, indent=2), encoding='utf-8')
     (output / 'protocol.json').write_text(json.dumps(dict(
         clusters=clusters, strengths=list(strengths), repeats=repeats, seed=seed,
+        intervention=intervention,
         representation='post_block_residual, equals token, before unembedding',
         fitting='all training activations only; raw Euclidean k-means',
         checkpoints=[str(Path(p).resolve()) for p in checkpoints],
@@ -125,13 +137,16 @@ def main():
     parser.add_argument('--clusters', type=int, default=8)
     parser.add_argument('--repeats', type=int, default=5)
     parser.add_argument('--seed', type=int, default=601)
+    parser.add_argument('--intervention', choices=['contract', 'tighten', 'separate'],
+                        default='contract', help='contract: necessity; tighten/separate: sufficiency')
     parser.add_argument('--strengths', nargs='+', type=float, default=[0., .25, .5, 1.])
     args = parser.parse_args()
     paths = sorted(set(p for pattern in args.checkpoints for p in glob.glob(pattern)))
     if not paths:
         parser.error('no checkpoints matched')
     torch.set_num_threads(1)
-    sweep(paths, args.output_dir, args.clusters, args.strengths, args.repeats, args.seed)
+    sweep(paths, args.output_dir, args.clusters, args.strengths, args.repeats, args.seed,
+          args.intervention)
 
 
 if __name__ == '__main__':
