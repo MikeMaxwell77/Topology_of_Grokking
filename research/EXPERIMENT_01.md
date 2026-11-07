@@ -56,8 +56,29 @@ model seeds and cluster-count sensitivity before training-time causal claims.
 
 ## Running and inspecting
 
-The existing Python wrapper is already running and queues the coarse sweep. Do not
-start another baseline. Logs: `outputs/cluster_causal_run.log` and `.err`.
+### Cluster execution (preferred)
+
+From the repository root on the cluster, after syncing the updated code:
+
+```bash
+sbatch run_experiment01.slurm
+```
+
+This uses the existing topology Conda environment and V100 partition settings.
+Training runs on CUDA; the offline intervention sweep runs on CPU within the same
+allocation only after training succeeds. Results go to
+`outputs/experiment01_JOBID/baseline` and `outputs/experiment01_JOBID/sweep`.
+Logs are `experiment01_JOBID.out` and `.err`. The sweep produces `report.md` and
+`contrasts.csv`. The script is explicitly tracked despite the general SLURM ignore rule.
+It starts a fresh GPU baseline; it does not resume the CPU trajectory. Runtime and
+CUDA reproducibility have not been validated locally (local Torch is CPU-only).
+The earlier local pilot was stopped at the user's request to use the cluster;
+existing complete checkpoints are retained as exploratory artifacts.
+
+### Earlier local pilot
+
+The earlier local Python wrapper queued the coarse sweep. It is superseded by the
+cluster job above. Local logs: `outputs/cluster_causal_run.log` and `.err`.
 
 ```powershell
 # Early check, in a fresh destination:

@@ -9,5 +9,6 @@ run_grokking.slurm
 data/simple_agreement/
 data/tinystories/
 *.slurm
+!run_experiment01.slurm
 .env
 .env.*

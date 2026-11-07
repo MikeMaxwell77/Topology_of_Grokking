@@ -210,6 +210,12 @@ Load only trusted local checkpoints because they include pickled optimizer/RNG o
 
 ## Execution record
 
+Cluster execution supersedes the local pilot: submit `sbatch run_experiment01.slurm`
+from the repository root on the cluster. The dedicated script starts the baseline
+on CUDA and then runs the evaluation-only sweep on CPU in the same allocation.
+See [Experiment 1](research/EXPERIMENT_01.md) for job-specific output paths. The local
+execution details below are historical, not instructions to start another CPU run.
+
 Experiment 1 now has a concrete [run protocol](research/EXPERIMENT_01.md), including
 the early operational results and fixed outcome/selection rules. The sweep also
 automatically produces paired contrasts in CSV and a Markdown report using
