@@ -36,6 +36,25 @@ and rescue remain separate future experiments.
 
 ## Run
 
+Submit from the cluster repository root:
+
+```bash
+sbatch run_experiment02.slurm
+```
+
+The default baseline path is `outputs/experiment01_22004279/baseline`, based on
+the Experiment 1 job recorded in outputs/Log.txt. If your results live elsewhere:
+
+```bash
+sbatch run_experiment02.slurm /path/to/baseline
+```
+
+The script requires the step-40000 checkpoint, activates the topology environment,
+and runs both CPU sweeps without retraining. Reports go to
+`outputs/experiment02_JOBID/tighten` and `outputs/experiment02_JOBID/separate`.
+The established GPU partition is used for cluster compatibility; evaluation does
+not use the GPU. Upload the new script and branch code before submitting.
+
 Replace BASELINE with the completed Experiment 1 baseline directory. Use fresh
 output destinations. Both commands run offline on CPU:
 

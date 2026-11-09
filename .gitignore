@@ -10,5 +10,6 @@ data/simple_agreement/
 data/tinystories/
 *.slurm
 !run_experiment01.slurm
+!run_experiment02.slurm
 .env
 .env.*
