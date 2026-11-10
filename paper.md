@@ -119,6 +119,8 @@ to restore the activation, checking recovery of logits and loss. This is an impo
 implementation control but is algebraically guaranteed, not independent proof that
 clusters are the mechanism. A stronger future rescue selectively restores the candidate
 component under an otherwise maintained disruption and compares random-component rescue.
+The immediate inverse control is implemented in `grokking.rescue`; see
+[Experiment 4](research/EXPERIMENT_04.md) for the protocol and cluster submission script.
 After training interventions, removal is not an inverse of intervening optimization:
 test recovery of clean performance and geometry over additional matched training.
 
