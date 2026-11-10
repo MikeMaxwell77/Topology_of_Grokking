@@ -108,8 +108,9 @@ backward rule explicitly: fixed center translations have identity derivative.
 Evaluate with interventions both active and switched off. A deficit only while active
 is execution disruption; delayed clean generalization is evidence of altered learning.
 Monitor alternate representations and re-formation. Compare onset and duration windows
-and include runs that never generalize (censored at the budget). This training-branch
-experiment is proposed, not implemented in the evaluation-only runner.
+and include runs that never generalize (censored at the budget). The separate
+training-branch runner is implemented in `grokking.training_interventions`; see
+[Experiment 3](research/EXPERIMENT_03.md). Cluster execution remains pending.
 
 ### 4. Rescue: restore after disruption
 

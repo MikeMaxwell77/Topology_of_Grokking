@@ -11,5 +11,6 @@ data/tinystories/
 *.slurm
 !run_experiment01.slurm
 !run_experiment02.slurm
+!run_experiment03.slurm
 .env
 .env.*
