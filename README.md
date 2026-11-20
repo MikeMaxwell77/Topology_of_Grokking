@@ -4,7 +4,48 @@ The controlled modular-addition topology study now has a separate entry point:
 `python -m grokking.study train`. See [methods, audit, validation, and exact commands](research/TOPOLOGY_STUDY.md).
 It uses fixed splits/probes, resumable optimizer-step checkpoints and offline raw/RMS-normalized
 H0/H1 analysis via `python -m grokking.study_analysis`. The historical paths below are preserved.
-Only the tiny smoke workflow has been validated; a full pilot has not yet established grokking.
+The initial smoke validation has since been followed by the exploratory pilot summarized below.
+
+## Preliminary findings: cluster interventions
+
+These are exploratory results from one modular-addition baseline training seed, not
+replicated evidence that clustering causes grokking. The baseline uses modulus 113,
+a 30% training split, and eight training-fitted Euclidean k-means clusters at the final
+residual representation before the prediction readout. See the
+[experiment 1 protocol](research/EXPERIMENT_01.md) for the intervention and controls.
+
+The baseline exhibited delayed generalization: training accuracy reached sustained
+99% by update 150, while held-out accuracy remained below 50% through update 2,200.
+Held-out accuracy reached sustained 50%, 95%, and 99% at updates 2,250, 2,850, and
+3,050, respectively. Thus the 50%–95% transition took approximately 600 updates,
+with 2,700 updates between memorization and the 95% threshold. Here, “sustained”
+requires five consecutive qualifying evaluations, recorded every 50 updates.
+
+| Experiment | Preliminary observation | Interpretation |
+|---|---|---|
+| 1: reduce cluster separation | At update 4,000, full-strength contraction reduced held-out accuracy from 100% to 5.18%; matched random controls averaged 99.81%. Quarter-strength contraction retained 100%. | Strong disruption of the targeted directions damages the learned predictions more than matched random changes. |
+| 2: separate or tighten clusters | At update 4,000, full-strength separation retained 99.24% accuracy, while full-strength tightening reduced it to 6.94%. Quarter-strength versions both retained 100%. At update 2,000, mild separation/tightening improved accuracy only modestly, from 39.28% to 40.59%/40.65%. | Increasing separation or compactness does not establish sufficiency for generalization. Tightening can remove useful variation within clusters. |
+| 3: temporary intervention during training | For a strength-0.5 intervention over updates 1,000–2,000, the targeted and clean accuracy curves remained close and eventually approached 100%. | This tested intervention did not visibly produce a large shift in generalization timing. |
+| 4: inverse-perturbation rescue | Reversing the perturbations restored loss to within approximately 3.25 × 10⁻⁸ of clean loss across the measured conditions. | This verifies numerical recovery under the inverse operation; it is an implementation control, not independent evidence about learning. |
+
+Absolute accuracy and cross-entropy loss should be inspected together. An intervention
+can beat matched controls on loss while still substantially reducing accuracy; a negative
+excess loss alone does not demonstrate improvement over the untouched model.
+
+The saved clustering diagnostic is the **between-cluster variance fraction**, measured
+using the original assignments after intervention. It describes separation, not an overlap
+percentage, and does not detect newly formed clusters. Silhouette scores and direct overlap
+measurements have not yet been computed. Control draws measure perturbation variability;
+they are not independent model training seeds. The offline intervention sweeps sample every
+1,000 updates, too coarsely to resolve the 600-update transition in detail.
+
+Local result directories (ignored by Git and therefore not included in a fresh clone):
+
+- Experiment 1: `outputs/experiment01_22026311/sweep/` (`report.md`, `contrasts.csv`, `sweep_heldout.png`).
+- Experiment 2: `outputs/experiment02_22027657/{separate,tighten}/` (reports, contrasts, and held-out plots).
+- Experiment 3: `outputs/experiment03_22041274/` (`timing_heldout.png`, `timing_onset.png`, and branch histories).
+- Experiment 4: `outputs/experiment04_22043007/` (`report.md`, `results.json`, `rescue_heldout.png`).
+- Cross-experiment views: `outputs/experiment_comparison/absolute_accuracy.png` and `generalization_transition.png`.
 
 The code is split by responsibility so individual pieces can be imported and tested without
 starting an experiment:
